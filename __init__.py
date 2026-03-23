@@ -5,7 +5,7 @@
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-#
+##
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -148,7 +148,6 @@ class o_oo_FormulaItem(bpy.types.PropertyGroup):
         #親ノードの喪失の保険
         # Fallback in case the parent node is lost
         if not parent_node or not hasattr(parent_node, "formulas") or self not in parent_node.formulas.values():#
-            print("nf")#deb
             for n in parent_nodes:
                 if hasattr(n, "formulas") and any(i == self for i in n.formulas):
                     self["parent_node_name"] = n.name
@@ -163,7 +162,6 @@ class o_oo_FormulaItem(bpy.types.PropertyGroup):
         parent_node = self.get_parent_node() 
         if parent_node and hasattr(parent_node, "update_in_MathController"):
             parent_node.update_in_MathController(self)
-        print("as context in FI",getattr(context, "node", None) or context.active_node)
             
     # f1=,[入力欄] :{name}={expression} 
     # f1=,[input field] :{name}={expression}
@@ -184,7 +182,7 @@ class o_oo_NODE_OT_FormulaAdd(bpy.types.Operator):
     def execute(self, context):
         
         parent_node = getattr(context, "node", None) or context.active_node
-        print(f"parent_node{parent_node}")#deb
+        #print(f"parent_node{parent_node}")#deb
         new_idx = len(parent_node.formulas) + 1
         item = parent_node.formulas.add()
         item.num = new_idx
@@ -234,7 +232,7 @@ class o_oo_NODE_OT_FormulaEditor(bpy.types.Operator):
     def invoke(self, context, event):
 
         if not getattr(self,"node",""):
-            print("No:getattr for context")#deb
+            #print("No:getattr for context")#deb
             self.node = getattr(context, "node", None) or context.active_node
         self.node_name = self.node.name  # ノード名を保存
         # Save node name
@@ -243,7 +241,6 @@ class o_oo_NODE_OT_FormulaEditor(bpy.types.Operator):
         # Adjust dialog width(len=100 : width=1000 per 100)
         d_width=(len(self.text_input)//10)*100
         d_width = 1000 if d_width < 1000 else d_width if d_width < 10000 else 10000
-        print("d_width",d_width)
         return context.window_manager.invoke_props_dialog(self, width=int(d_width))
     
     def draw_recursive(self, layout, func_node):
@@ -447,7 +444,7 @@ class o_oo_NodeBuilder:
         output_rema={i.name for i in self.c.formulas if i.expression }
         for item in list(self.tree.interface.items_tree):
             if (item.item_type == 'SOCKET' and item.in_out == 'INPUT' and item.name in remo):
-                print("item.name",item.name)
+                #print("item.name",item.name)#deb
                 #print("socket",self.c.inputs.get(item.name,"no").is_linked)
                 if not getattr(self.c.inputs.get(item.name,"no"),"is_linked",""):
                     self.tree.interface.remove(item)
@@ -489,7 +486,7 @@ class o_oo_NodeBuilder:
                 if reroute: 
                     return reroute
                 else:
-                    self.c.forms["error_msg"]="Unavirable function symbol"
+                    self.c.forms["error_msg"]="Unavailable function symbol"
                     return 0
             else:
                 return ast_node.id
@@ -570,7 +567,7 @@ class o_oo_NodeBuilder:
         # 2. Socket update
         self.setup_interface(all_vars)
         self.tree.nodes.remove(self.frame)
-        if node_ast:
+        if node_ast:#empty_filter
             self.get_or_create_frame()
 
         # 3. 入出力ノードの確保
@@ -586,7 +583,7 @@ class o_oo_NodeBuilder:
             self.node_out.location = (300, 0)
         # 4. ノード構築と最終接続の設定
         # 4. Build nodes and set final connections
-        if node_ast:
+        if node_ast:#empty_filter
             final_node = self.build_node(node_ast, -1)
             if final_node:
                 if isinstance(final_node, (int, float)):
@@ -740,7 +737,7 @@ class o_oo_BaseMathController(bpy.types.NodeCustomGroup):
         self.formula_id=forms.name
         self.formula_num=int(self.formula_id[1:])-1
         self.last_formula=forms.last_formula
-        #print("update_in_MathController_start")
+        #print("update_in_MathController_start")#deb
         try:
 
             if self.last_formula == self.formula:
@@ -776,7 +773,7 @@ class o_oo_BaseMathController(bpy.types.NodeCustomGroup):
             formula_nor = formula_nor.replace(old, new)
         
         try:
-            if self.formula != "":#empty_fillter([0],1)
+            if self.formula != "":#empty_filter
                 node_ast = ast.parse(formula_nor, mode='eval').body
                 funcs = {n.func.id for n in ast.walk(node_ast) if isinstance(n, ast.Call) and isinstance(n.func, ast.Name)}
                 all_vars = {n.id for n in ast.walk(node_ast) if isinstance(n, ast.Name) and n.id not in funcs}
@@ -791,7 +788,7 @@ class o_oo_BaseMathController(bpy.types.NodeCustomGroup):
             return
         
         if any(len(i)>60 for i in all_vars):#to avoid key miss
-            self.forms["error_msg"]="maybe:use too long value name, over 60"
+            self.forms["error_msg"]="maybe: Variable name too long (max 60 chars)"
             return
         # Builderを生成し、一括実行
         # Create builder and execute in batch
