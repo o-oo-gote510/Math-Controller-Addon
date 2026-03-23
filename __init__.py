@@ -240,9 +240,10 @@ class o_oo_NODE_OT_FormulaEditor(bpy.types.Operator):
         # Save node name
         self.text_input = self.node.formulas[self.index].expression
         # ダイアログの幅を調整
-        # Adjust dialog width
-        u=int(len(self.text_input))/80
-        d_width=((abs(u)-abs(u-9)+9)/2+1)*1000#!
+        # Adjust dialog width(len=100 : width=1000 per 100)
+        d_width=(len(self.text_input)//10)*100
+        d_width = 1000 if d_width < 1000 else d_width if d_width < 10000 else 10000
+        print("d_width",d_width)
         return context.window_manager.invoke_props_dialog(self, width=int(d_width))
     
     def draw_recursive(self, layout, func_node):
@@ -447,14 +448,14 @@ class o_oo_NodeBuilder:
         for item in list(self.tree.interface.items_tree):
             if (item.item_type == 'SOCKET' and item.in_out == 'INPUT' and item.name in remo):
                 print("item.name",item.name)
-                print("socket",self.c.inputs.get(item.name,"no").is_linked)
-                if not self.c.inputs.get(item.name,"no").is_linked:
+                #print("socket",self.c.inputs.get(item.name,"no").is_linked)
+                if not getattr(self.c.inputs.get(item.name,"no"),"is_linked",""):
                     self.tree.interface.remove(item)
         #!警告:ソケットに関して、INPUTとOUTPUTの取得削除をおなじfor構文の中で行うと、blenderがクラッシュした。
         #!Warning: Performing retrieval and deletion of INPUT and OUTPUT sockets in the same for loop caused Blender to crash.
         for item in list(self.tree.interface.items_tree):
             if (item.item_type == 'SOCKET' and item.in_out == 'OUTPUT' and item.name not in output_rema):
-                if not self.c.outputs.get(item.name,"no").is_linked:
+                if not getattr(self.c.inputs.get(item.name,"no"),"is_linked",""):
                     self.tree.interface.remove(item)
 
     def dig_unary(self,ast_node,i):
@@ -485,7 +486,7 @@ class o_oo_NodeBuilder:
         elif isinstance(ast_node, ast.Name):
             if ast_node.id[0]=="f" and (ast_node.id[1:]).isdigit():
                 reroute = self.tree.nodes.get("Anchor_"+ast_node.id,None)
-                if reroute:#! 
+                if reroute: 
                     return reroute
                 else:
                     self.c.forms["error_msg"]="Unavirable function symbol"
@@ -590,7 +591,7 @@ class o_oo_NodeBuilder:
             if final_node:
                 if isinstance(final_node, (int, float)):
                     self.node_out.inputs[self.anchor_name].default_value = final_node
-                elif isinstance(final_node, str):
+                elif isinstance(final_node, str):#!erorr:use too long value name
                     self.links.new(self.node_in.outputs[final_node], self.reroute.inputs[0])
                 else:
                     self.links.new(final_node.outputs[0], self.reroute.inputs[0])
@@ -644,7 +645,7 @@ def o_oo_delay_copy(new,old):
         else:
             new_tree = bpy.data.node_groups.new(".FormulaTree",new.node_type)
             new.node_tree = new_tree
-        new.node_tree.name = ".internal_Math Controller_copy"
+        new.node_tree.name = ".internal_copy"
     
     
     finally:return None
@@ -660,7 +661,7 @@ class o_oo_BaseMathController(bpy.types.NodeCustomGroup):
 #====================init & copy:内部ツリー生成・update_in_MathController呼び出し============#
 #====================init & copy: internal tree generation & calling update_in_MathController============#
     def init(self, context):
-        new_tree = bpy.data.node_groups.new(".internal_Math Controller", self.bl_tree_type)
+        new_tree = bpy.data.node_groups.new(".internal", self.bl_tree_type)
         self.node_tree = new_tree
         self.width = 240
         # 初期状態で f1 を作成
@@ -787,6 +788,10 @@ class o_oo_BaseMathController(bpy.types.NodeCustomGroup):
             traceback.print_exc()
             print("Invalid Formula")
             self.forms["error_msg"]="Invalid Formula"
+            return
+        
+        if any(len(i)>60 for i in all_vars):#to avoid key miss
+            self.forms["error_msg"]="maybe:use too long value name, over 60"
             return
         # Builderを生成し、一括実行
         # Create builder and execute in batch
