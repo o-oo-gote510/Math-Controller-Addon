@@ -874,6 +874,5 @@ def unregister():
         except:
             print(f"[{i}]:couldn't")
             
-# if __name__ == "__main__":
-#     register()
-register()
+ if __name__ == "__main__":
+     register()
