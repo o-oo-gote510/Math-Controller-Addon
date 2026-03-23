@@ -1,3 +1,23 @@
+
+###license[GNU General Public License v3.0 or later]
+# Copyright (C) 2026  [o_oo_gote510]
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+###
+
+
+
+
 #===========CG_math_0.4.5=================#
 import bpy
 from bpy.app.translations import pgettext_iface
@@ -5,10 +25,7 @@ import traceback
 import ast
 
 
-
-
-
-#use for ast
+#astパーサー用
 MATH_OPS = {ast.Add: 'ADD', ast.Sub: 'SUBTRACT', ast.Mult: 'MULTIPLY', ast.Div: 'DIVIDE', ast.Pow: "POWER"}
 FUNC_OPS = {
     # --- Functions ---
@@ -62,7 +79,7 @@ FUNC_OPS = {
     'rad': 'RADIANS',
     'deg': 'DEGREES',
 }
-#use for dialog
+#ダイアログ用
 HELP_LAYOUT_DATA = {
     "Functions": [
         ('+    add(  ,  )', 'Add'), 
@@ -123,14 +140,14 @@ HELP_LAYOUT_DATA = {
 
 
 change_list_formula = [["^","**"]]
-#############################################################################################################
 
-# --- 1. データ構造 ---
+# --- プロパティグループのクラス群 ---
 class FormulaItem_510(bpy.types.PropertyGroup):
     
     def get_parent_node(self):
         parent_nodes = self.id_data.nodes
         parent_node = parent_nodes.get(self.get("parent_node_name", ""))
+        #親ノードの喪失の保険
         if not parent_node or not hasattr(parent_node, "formulas") or self not in parent_node.formulas.values():#
             print("nf")#deb
             for n in parent_nodes:
@@ -141,14 +158,14 @@ class FormulaItem_510(bpy.types.PropertyGroup):
                     None
         return parent_node
 
-    # update関数側
+    # カスタムグループノードのupdate関数を起動させる。
     def update_in_FromulaItem(self, context):
-        parent_node = self.get_parent_node() # ★これで親が取れる！
-        #parent_node=getattr(context, "node", None) or context.active_node
+        parent_node = self.get_parent_node() 
         if parent_node and hasattr(parent_node, "update_in_FromulaController"):
             parent_node.update_in_FromulaController(self)
         print("as context in FI",getattr(context, "node", None) or context.active_node)
             
+    # f1=,[入力欄] :{name}={expression} 
     num: bpy.props.IntProperty(name="Num")
     name: bpy.props.StringProperty(name="Name")
     expression: bpy.props.StringProperty(name="Formula", default="", update=update_in_FromulaItem)
@@ -160,7 +177,6 @@ class FormulaItem_510(bpy.types.PropertyGroup):
         self["scale"]=[0,0]
         self["parent_node_name"]= ""    
 
-# --- 2. オペレーター ---
 class NODE_OT_FormulaAdd_510(bpy.types.Operator):
     bl_idname = "node.formula_add_510"
     bl_label = "Add"
@@ -190,44 +206,40 @@ class NODE_OT_FormulaRemoveStrict_510(bpy.types.Operator):
             return {'CANCELLED'}
         node.formulas.remove(len(node.formulas) - 1)
         return {'FINISHED'}
-# --- 1. ダイアログオペレーター ---
+# --- ダイアログ用のクラス群 ---
 class NODE_OT_FormulaEditor_510(bpy.types.Operator):
     bl_idname = "node.formula_editor_510"
     bl_label = "Advanced Formula Editor"
     bl_options = {'REGISTER', 'UNDO'}
     index: bpy.props.IntProperty()
-    #node_name: bpy.props.StringProperty()
+    node_name: bpy.props.StringProperty()
     text_input: bpy.props.StringProperty(name="")
 
-    def execute(self, context):
-        # 名前からノードを特定する（context.node の代わりに）
-        # アクティブなノードツリー内から探します
-#        if not self.node:
-#            tree = context.space_data.edit_tree
-#            if not tree: return {'CANCELLED'}
-#            self.node = tree.nodes.get(self.node_name)
+    def execute(self, context):  
+        # 親ノードの喪失の保険
+        if not self.node:
+           tree = context.space_data.edit_tree
+           if not tree: return {'CANCELLED'}
+           self.node = tree.nodes.get(self.node_name)
+
         if getattr(self,"node",""):
             self.node.formulas[self.index].expression = self.text_input
             return {'FINISHED'}
         return {'CANCELLED'}
+    
     def invoke(self, context, event):
-        # ダイアログを開く前に現在の値をセット
-#        if not getattr(self,"node",""):
-#            print("No:getattr for tree")#deb
-#            tree = context.space_data.edit_tree
-#            self.node = tree.nodes.get(self.node_name,"")
+
         if not getattr(self,"node",""):
             print("No:getattr for context")#deb
             self.node = getattr(context, "node", None) or context.active_node
-        #self.node_name = self.node.name  # ノード名を保存
+        self.node_name = self.node.name  # ノード名を保存
         self.text_input = self.node.formulas[self.index].expression
-        u=int(len(self.text_input))/80
-        d_width=((abs(u)-abs(u-9)+9)/2+1)*1000
         # ダイアログの幅を調整
+        u=int(len(self.text_input))/80
+        d_width=((abs(u)-abs(u-9)+9)/2+1)*1000#!
         return context.window_manager.invoke_props_dialog(self, width=int(d_width))
     
     def draw_recursive(self, layout, func_node):
-        # node がリストなら再帰的に描画
         if isinstance(func_node, list):
             row = layout.row(align=True)
             row.alignment = "LEFT"
@@ -243,20 +255,16 @@ class NODE_OT_FormulaEditor_510(bpy.types.Operator):
             pass
 
     def draw(self, context):
-        l=17
         layout = self.layout
         # ラベルなしでプロパティを表示し、横幅いっぱいに広げる
         row = layout.row()
         row.prop(self, "text_input", text="")
         
-        # 2. テスト：hogehoge を3行表示する
         box = layout.box()
         a=FormulaParser_510(self.text_input)
         funcs=a.parse()
         self.draw_recursive(box, funcs)
         
-        ###HELP LIST
-        # 各カテゴリを縦列（Column）として配置していく
         box2=layout.box()
         Hrow = box2.row(align=True)
         
@@ -266,7 +274,7 @@ class NODE_OT_FormulaEditor_510(bpy.types.Operator):
             # カテゴリの見出し
             category_inte=pgettext_iface(category, "NodeTree")
             Hcol.label(text=category_inte)
-            Hcol.label(text="─"*l)
+            Hcol.label(text="─"*17)
             Hrow2=Hcol.row(align=True)
             Hrow2.alignment="LEFT"
             Hcol1=Hrow2.column(align=True)
@@ -282,9 +290,9 @@ class NODE_OT_FormulaEditor_510(bpy.types.Operator):
                 else:
                     Hcol1.label(text="─"*10)
                     Hcol2.label(text="─"*7)
-        
 
 class FormulaParser_510:
+    #(,)で深まる木構造生成パーサ
     def __init__(self, formula):
         self.formula = formula
         self.pos = 0
@@ -314,12 +322,35 @@ class FormulaParser_510:
                   self.pos += 1
         finally:
           return result
+# --- サブグループノード用のクラス群 --- 
+class NODE_OT_ExpandFormulaGroup_510(bpy.types.Operator):
+    bl_idname = "node.expand_formula_group_510"
+    bl_label = "Expand to Group Node"
+    bl_options = {'REGISTER', 'UNDO'}
 
-# --- 3. ノード本体 ---
+    def execute(self, context):
+        parent_tree = context.space_data.edit_tree
+        parent_node=getattr(context, "node", None) or context.active_node
+        
+        if not (parent_tree and parent_node):
+            return {'CANCELLED'}
+        group_node = parent_tree.nodes.new(type=parent_node.group_type)
+        group_node.node_tree = parent_node.node_tree
+        
+        # 生成位置を一旦、元のノードと同じにする（この後マウスに重なるため）
+        group_node.location = parent_node.location
+        
+        # 選択状態を新しいノードに限定する
+        bpy.ops.node.select_all(action='DESELECT')
+        group_node.select = True
+        parent_tree.nodes.active = group_node
+        
+        # マウス移動（グラブ）モードを開始する
+        bpy.ops.node.translate_attach_remove_on_cancel('INVOKE_DEFAULT')
+        
+        return {'FINISHED'}
 
-#############################################################################################################
-
-#ノード構築を専門に行うクラス
+# --- 数式ノード生成用のクラス群 ---
 class NodeBuilder_510:
     def __init__(self, controller, tree):
         self.c = controller
@@ -329,6 +360,7 @@ class NodeBuilder_510:
         self.node_out = None
         self.anchor_name=self.c.formula_id
         self.node_dimension=[]
+
     def get_or_create_frame(self):
         frame_name=f"Frame_{self.anchor_name}"
         frame = self.tree.nodes.get(frame_name)
@@ -338,10 +370,12 @@ class NodeBuilder_510:
             frame.label=f"Formula:{self.anchor_name}"
         self.frame=frame
         return
+    
     def clear_frame_contents(self,frame):
         for node in list(self.tree.nodes):
             if node.parent == frame and node.bl_idname !="NodeReroute":
                 self.tree.nodes.remove(node)
+
     def get_or_create_reroute(self,frame):
         reroute_name = f"Anchor_{self.anchor_name}"
         reroute = self.tree.nodes.get(reroute_name)
@@ -356,7 +390,6 @@ class NodeBuilder_510:
         return now - new, new - now
 
     def setup_interface(self, all_vars):
-        """インターフェース（ソケット）の更新"""
         last_vars=set()
         for i, item in enumerate(self.c.formulas):
             if i != self.c.formula_num:
@@ -383,7 +416,6 @@ class NodeBuilder_510:
         if not socket:
             socket=self.tree.interface.new_socket(name=self.anchor_name, in_out='OUTPUT', socket_type='NodeSocketFloat')
         self.c.forms["input_sockets"]=list(all_vars)
-        #print("extracted in formulas")
         my_num=self.tree.interface.items_tree.find(socket.name)
         for i in range(my_num):
             item=self.tree.interface.items_tree[i]
@@ -401,14 +433,16 @@ class NodeBuilder_510:
                 print("socket",self.c.inputs.get(item.name,"no").is_linked)
                 if not self.c.inputs.get(item.name,"no").is_linked:
                     self.tree.interface.remove(item)
-        #warning:crash_experience
+        #!警告:ソケットに関して、INPUTとOUTPUTの取得削除をおなじfor構文の中で行うと、blenderがクラッシュした。
         for item in list(self.tree.interface.items_tree):
             if (item.item_type == 'SOCKET' and item.in_out == 'OUTPUT' and item.name not in output_rema):
                 if not self.c.outputs.get(item.name,"no").is_linked:
                     self.tree.interface.remove(item)
-        ##############
+
     def dig_unary(self,ast_node,i):
-            # ast_node.op はオブジェクトなので、isinstance で判定するのが標準的です
+
+        """連続した符号をまとめる"""
+
         if isinstance(ast_node, ast.UnaryOp):
             # ast.USub-> i=-i
             if isinstance(ast_node.op, ast.USub):
@@ -422,7 +456,6 @@ class NodeBuilder_510:
         return ast_node ,0
 
     def build_node(self, ast_node, depth):
-        
             
         """再帰的なノード構築"""
 
@@ -482,7 +515,6 @@ class NodeBuilder_510:
                         self.c.forms["error_msg"]="function:"+ast_node.func.id
                         self.c.forms["error_msg"]=self.c.forms["error_msg"]+",maybe:"+"too many vars"
                         print("func error")
-    #                pass
             math_node.parent=self.frame
             return math_node
         
@@ -498,13 +530,8 @@ class NodeBuilder_510:
                     op=ast.Mult(),
                     right=new_ast
                 )
-                # 座標情報を補完（これを行わないと compile 時にエラーになることがあります）
                 ast.fix_missing_locations(new_node)
-                return self.build_node(new_node, depth)
-
-                
-                
-                
+                return self.build_node(new_node, depth)        
 
     def run(self, node_ast, all_vars):
         """構築プロセスの実行フロー"""
@@ -514,12 +541,11 @@ class NodeBuilder_510:
         self.clear_frame_contents(self.frame)
         self.frame.shrink = False
         self.get_or_create_reroute(self.frame)
-        # 1. ソケット更新
+        # 2. ソケット更新
         self.setup_interface(all_vars)
         self.tree.nodes.remove(self.frame)
         if node_ast:
             self.get_or_create_frame()
-        # 2. ツリーの掃除
 
         # 3. 入出力ノードの確保
         self.node_in = next((n for n in self.tree.nodes if n.bl_idname == "NodeGroupInput"), None)
@@ -531,7 +557,7 @@ class NodeBuilder_510:
         if not self.node_out:
             self.node_out = self.tree.nodes.new("NodeGroupOutput")
             self.node_out.location = (300, 0)
-        # 4. ノード構築と最終接続
+        # 4. ノード構築と最終接続の設定
         if node_ast:
             final_node = self.build_node(node_ast, -1)
             if final_node:
@@ -545,10 +571,9 @@ class NodeBuilder_510:
         
             self.links.new(self.reroute.outputs[0], self.node_out.inputs[self.c.formula_id])
         else:
-            #node = self.id_data
-            #return
-            pass#warring:error_experience
-
+  
+            pass#!警告:frameが削除された後、再生成される前に呼び出すと、blenderがクラッシュした。
+        #タイマーで、勝利終了後に正確にノード整理を行う。
         bpy.app.timers.register(lambda: delayed_positioning_510(self), first_interval=0.01)
 
 def delayed_positioning_510(builder):
@@ -575,44 +600,11 @@ def delayed_positioning_510(builder):
             if i.expression:
                 (b.tree.nodes.get(f"Frame_{i.name}")).location.y=k                
                 k += - i["scale"][1] -200
-    #            print(f"{i.name}:{(b.tree.nodes.get(f'Frame_{i.name}')).location.y}+{k}")#deb
-    #    print(f"{b.c.forms.name}['scale']={[scale_x,scale_y]}")#deb
+
     finally:
-        return None # Noneを返すとタイマーは自動で終了する
+        return None 
 
-        
-        
-
-        
-
-#ノード複製class
-class NODE_OT_ExpandFormulaGroup_510(bpy.types.Operator):
-    bl_idname = "node.expand_formula_group_510"
-    bl_label = "Expand to Group Node"
-    bl_options = {'REGISTER', 'UNDO'}
-
-    def execute(self, context):
-        parent_tree = context.space_data.edit_tree
-        parent_node=getattr(context, "node", None) or context.active_node
-        
-        if not (parent_tree and parent_node):
-            return {'CANCELLED'}
-        group_node = parent_tree.nodes.new(type=parent_node.group_type)#target_node.bl_tree_type[:-4]+"Group"
-        group_node.node_tree = parent_node.node_tree
-        
-        # 2. 生成位置を一旦、元のノードと同じにする（この後マウスに重なるため）
-        group_node.location = parent_node.location
-        
-        # 3. 選択状態を新しいノードに限定する
-        bpy.ops.node.select_all(action='DESELECT')
-        group_node.select = True
-        parent_tree.nodes.active = group_node
-        
-        # 4. 【重要】マウス移動（グラブ）モードを開始する
-        bpy.ops.node.translate_attach_remove_on_cancel('INVOKE_DEFAULT')
-        
-        return {'FINISHED'}
-
+# --- カスタムグループノード本体 ---
 def delay_copy(new,old):
     try:
 
@@ -626,9 +618,6 @@ def delay_copy(new,old):
     
     finally:return None
 
-
-
-#カスタムグループノードのclass
 class BaseFormulaController_510(bpy.types.NodeCustomGroup):
 
     bl_label = "Formula Controller"
@@ -650,14 +639,10 @@ class BaseFormulaController_510(bpy.types.NodeCustomGroup):
             item.id_property_register()
             item["parent_node_name"]=self.name
             
-#    def copy(self, node):
-
-        
-
     def copy(self, node):
         # 3. タイマーを登録して、0.01秒後に復元処理を予約
         #これより、ctrl+shift+Dでのリンクあり複製の際のリンク切れを防ぐ。
-        #注意：ctrl+shift+Dを、タイマーなし且つ内部ノード非継承(完全な新規ノードと交換)という条件で行うとクラッシュした。
+        #!警告:ctrl+shift+Dを、タイマーなし且つ内部ノード非継承(完全な新規ノードと交換)という条件で行うとクラッシュした。
         #また、ctrl+shift+Dでタイマーなしあるいは処理が終わらない時に、条件{ 内部ノード継承(.copy())やその他の参照行為 }が行われるとリンクが切れるにとどまるが成功しない。
         bpy.app.timers.register(
             lambda: delay_copy(self,node),
@@ -704,7 +689,7 @@ class BaseFormulaController_510(bpy.types.NodeCustomGroup):
         else:
             print("lost node_tree")#deb
 #==========================update_in_FromulaController:入力検査->rebuild_internal呼び出し=======#
-    def update_in_FromulaController(self,forms):#formula->forms.name
+    def update_in_FromulaController(self,forms):
         self.forms=forms
         self.formula=forms.expression
         self.formula_id=forms.name
@@ -750,7 +735,6 @@ class BaseFormulaController_510(bpy.types.NodeCustomGroup):
                 all_vars = {n.id for n in ast.walk(node_ast) if isinstance(n, ast.Name) and n.id not in funcs}
                 all_vars = {i for i in all_vars if not (i[0]=="f" and (i[1:]).isdigit())}
             else:
-                #return
                 node_ast=""
                 all_vars=set()
         except Exception as e:
@@ -759,12 +743,12 @@ class BaseFormulaController_510(bpy.types.NodeCustomGroup):
             self.forms["error_msg"]="Invalid Formula"
             return
         # Builderを生成し、一括実行
-        #ast.walk で許可するノードタイプに限って分析する
+        #builderで許可するノードタイプに限って分析する
         builder = NodeBuilder_510(self, tree)
         builder.run(node_ast, all_vars)
 
     def free(self):
-        if self.node_tree and self.node_tree.users <= 2:
+        if self.node_tree and self.node_tree.users <= 2:#!
             bpy.data.node_groups.remove(self.node_tree)
             
 class SHADER_NodeFormulaController_510(bpy.types.ShaderNodeCustomGroup, BaseFormulaController_510):
@@ -772,30 +756,23 @@ class SHADER_NodeFormulaController_510(bpy.types.ShaderNodeCustomGroup, BaseForm
     bl_tree_type = 'ShaderNodeTree'
     group_type='ShaderNodeGroup'
     def init(self,context):
-        #self.node_type='ShaderNodeTree'
         super().init(context)
-        
-    # ...
 
 class COMP_NodeFormulaController_510(bpy.types.CompositorNodeCustomGroup, BaseFormulaController_510):
     bl_idname = "CompositorNodeFormulaController_510"
     bl_tree_type = 'CompositorNodeTree'
     group_type='CompositorNodeGroup'
     def init(self,context):
-        #self.node_type='CompositorNodeTree'
         super().init(context)
-    # ...
 
 class GEO_NodeFormulaController_510(bpy.types.GeometryNodeCustomGroup, BaseFormulaController_510):
     bl_idname = "GeometryNodeFormulaController_510"
     bl_tree_type = 'GeometryNodeTree'
     group_type='GeometryNodeGroup'
     def init(self,context):
-        #self.node_type='GeometryNodeTree'
         super().init(context)
-    # ...
 
-#=======================menu_func,register,unregister========================#
+# --- 登録用の関数群 ---
 classes = (
     FormulaItem_510,
     NODE_OT_FormulaAdd_510,
