@@ -16,7 +16,7 @@ platforms = ["windows-x64", "macos-arm64", "macos-x64", "linux-x64"]
 blender_version_min = "5.0.1"
 
 # ライセンス指定
-license = ["SPDX:GPL-2.0-or-later"]
+license = ["SPDX:GPL-3.0-or-later"]
 
 # 検索用タグ
 tags = ["Node", "Geometry Nodes"]
