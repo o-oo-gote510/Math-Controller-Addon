@@ -140,7 +140,7 @@ change_list_formula = [["^","**"]]
 
 # --- プロパティグループのクラス群 ---
 # --- Property group classes ---
-class o_oo_math_controller_FormulaItem(bpy.types.PropertyGroup):
+class o_oo_FormulaItem(bpy.types.PropertyGroup):
     
     def get_parent_node(self):
         parent_nodes = self.id_data.nodes
@@ -161,8 +161,8 @@ class o_oo_math_controller_FormulaItem(bpy.types.PropertyGroup):
     # Trigger the update function of the custom group node
     def update_in_FromulaItem(self, context):
         parent_node = self.get_parent_node() 
-        if parent_node and hasattr(parent_node, "update_in_FromulaController"):
-            parent_node.update_in_FromulaController(self)
+        if parent_node and hasattr(parent_node, "update_in_MathController"):
+            parent_node.update_in_MathController(self)
         print("as context in FI",getattr(context, "node", None) or context.active_node)
             
     # f1=,[入力欄] :{name}={expression} 
@@ -178,8 +178,8 @@ class o_oo_math_controller_FormulaItem(bpy.types.PropertyGroup):
         self["scale"]=[0,0]
         self["parent_node_name"]= ""    
 
-class o_oo_math_controller_NODE_OT_FormulaAdd(bpy.types.Operator):
-    bl_idname = "o_oo_math_controller.formula_add"
+class o_oo_NODE_OT_FormulaAdd(bpy.types.Operator):
+    bl_idname = "o_oo.formula_add"
     bl_label = "Add"
     def execute(self, context):
         
@@ -194,8 +194,8 @@ class o_oo_math_controller_NODE_OT_FormulaAdd(bpy.types.Operator):
 
         return {'FINISHED'}
 
-class o_oo_math_controller_NODE_OT_FormulaRemoveStrict(bpy.types.Operator):
-    bl_idname = "o_oo_math_controller.formula_remove_strict"
+class o_oo_NODE_OT_FormulaRemoveStrict(bpy.types.Operator):
+    bl_idname = "o_oo.formula_remove_strict"
     bl_label = "Remove"
     def execute(self, context):
         node = getattr(context, "node", None) or context.active_node
@@ -210,8 +210,8 @@ class o_oo_math_controller_NODE_OT_FormulaRemoveStrict(bpy.types.Operator):
         return {'FINISHED'}
 # --- ダイアログ用のクラス群 ---
 # --- Dialog classes ---
-class o_oo_math_controller_NODE_OT_FormulaEditor(bpy.types.Operator):
-    bl_idname = "o_oo_math_controller.formula_editor"
+class o_oo_NODE_OT_FormulaEditor(bpy.types.Operator):
+    bl_idname = "o_oo.formula_editor"
     bl_label = "Advanced Formula Editor"
     bl_options = {'REGISTER', 'UNDO'}
     index: bpy.props.IntProperty()
@@ -268,7 +268,7 @@ class o_oo_math_controller_NODE_OT_FormulaEditor(bpy.types.Operator):
         row.prop(self, "text_input", text="")
         
         box = layout.box()
-        a=o_oo_math_controller_FormulaParser(self.text_input)
+        a=o_oo_FormulaParser(self.text_input)
         funcs=a.parse()
         self.draw_recursive(box, funcs)
         
@@ -299,7 +299,7 @@ class o_oo_math_controller_NODE_OT_FormulaEditor(bpy.types.Operator):
                     Hcol1.label(text="─"*10)
                     Hcol2.label(text="─"*7)
 
-class o_oo_math_controller_FormulaParser:
+class o_oo_FormulaParser:
     #(,)で深まる木構造生成パーサ
     # Parser that generates a tree structure deepening with parentheses (,)
     def __init__(self, formula):
@@ -333,8 +333,8 @@ class o_oo_math_controller_FormulaParser:
           return result
 # --- サブグループノード用のクラス群 --- 
 # --- Sub-group node classes ---
-class o_oo_math_controller_NODE_OT_ExpandFormulaGroup(bpy.types.Operator):
-    bl_idname = "o_oo_math_controller.expand_formula_group"
+class o_oo_NODE_OT_ExpandFormulaGroup(bpy.types.Operator):
+    bl_idname = "o_oo.expand_formula_group"
     bl_label = "Expand to Group Node"
     bl_options = {'REGISTER', 'UNDO'}
 
@@ -365,7 +365,7 @@ class o_oo_math_controller_NODE_OT_ExpandFormulaGroup(bpy.types.Operator):
 
 # --- 数式ノード生成用のクラス群 ---
 # --- Classes for formula node generation ---
-class o_oo_math_controller_NodeBuilder:
+class o_oo_NodeBuilder:
     def __init__(self, controller, tree):
         self.c = controller
         self.tree = tree
@@ -603,9 +603,9 @@ class o_oo_math_controller_NodeBuilder:
             #!Warning: Calling this after the frame is deleted and before it is recreated caused Blender to crash.
         #タイマーで、勝利終了後に正確にノード整理を行う。
         # Use a timer to properly arrange nodes after completion
-        bpy.app.timers.register(lambda: o_oo_math_controller_delayed_positioning(self), first_interval=0.01)
+        bpy.app.timers.register(lambda: o_oo_delayed_positioning(self), first_interval=0.01)
 
-def o_oo_math_controller_delayed_positioning(builder):
+def o_oo_delayed_positioning(builder):
     try:
         # すべての描画・計算が完了した後に実行される
         # Executed after all drawing and calculations are completed
@@ -636,7 +636,7 @@ def o_oo_math_controller_delayed_positioning(builder):
 
 # --- カスタムグループノード本体 ---
 # --- Custom group node main body ---
-def o_oo_math_controller_delay_copy(new,old):
+def o_oo_delay_copy(new,old):
     try:
 
         if old.node_tree:
@@ -644,23 +644,23 @@ def o_oo_math_controller_delay_copy(new,old):
         else:
             new_tree = bpy.data.node_groups.new(".FormulaTree",new.node_type)
             new.node_tree = new_tree
-        new.node_tree.name = ".internal_for_Formula Controller_copy"
+        new.node_tree.name = ".internal_Math Controller_copy"
     
     
     finally:return None
 
-class o_oo_math_controller_BaseFormulaController(bpy.types.NodeCustomGroup):
+class o_oo_BaseMathController(bpy.types.NodeCustomGroup):
 
-    bl_label = "Formula Controller"
+    bl_label = "Math Controller"
     bl_icon = 'NODE'
     bl_tree_type = 'GeometryNodeTree'
 
-    formulas: bpy.props.CollectionProperty(type=o_oo_math_controller_FormulaItem)
+    formulas: bpy.props.CollectionProperty(type=o_oo_FormulaItem)
 
-#====================init & copy:内部ツリー生成・update_in_FromulaController呼び出し============#
-#====================init & copy: internal tree generation & calling update_in_FromulaController============#
+#====================init & copy:内部ツリー生成・update_in_MathController呼び出し============#
+#====================init & copy: internal tree generation & calling update_in_MathController============#
     def init(self, context):
-        new_tree = bpy.data.node_groups.new(".internal_for_Formula Controller", self.bl_tree_type)
+        new_tree = bpy.data.node_groups.new(".internal_Math Controller", self.bl_tree_type)
         self.node_tree = new_tree
         self.width = 240
         # 初期状態で f1 を作成
@@ -682,7 +682,7 @@ class o_oo_math_controller_BaseFormulaController(bpy.types.NodeCustomGroup):
         #また、ctrl+shift+Dでタイマーなしあるいは処理が終わらない時に、条件{ 内部ノード継承(.copy())やその他の参照行為 }が行われるとリンクが切れるにとどまるが成功しない。
         # Also, without a timer or if processing is incomplete, operations like inheriting internal nodes (.copy()) or other references result in broken links and failure.
         bpy.app.timers.register(
-            lambda: o_oo_math_controller_delay_copy(self,node),
+            lambda: o_oo_delay_copy(self,node),
             first_interval=0.01
         )
         
@@ -697,8 +697,8 @@ class o_oo_math_controller_BaseFormulaController(bpy.types.NodeCustomGroup):
         # Button area
         btn_row = main_col.row(align=True)
         btn_row.alignment = 'RIGHT'
-        btn_row.operator("o_oo_math_controller.formula_add", icon='ADD', text="")
-        btn_row.operator("o_oo_math_controller.formula_remove_strict", icon='REMOVE', text="")
+        btn_row.operator("o_oo.formula_add", icon='ADD', text="")
+        btn_row.operator("o_oo.formula_remove_strict", icon='REMOVE', text="")
         # 数式フォームエリア
         # Formula form area
         for i, item in enumerate(self.formulas):
@@ -714,7 +714,7 @@ class o_oo_math_controller_BaseFormulaController(bpy.types.NodeCustomGroup):
             # Input field
             row.prop(item, "expression", text="")
             
-            op = row.operator("o_oo_math_controller.formula_editor", icon='TEXT', text="")
+            op = row.operator("o_oo.formula_editor", icon='TEXT', text="")
             if op:
                 op.index = i
             error = item.get("error_msg","")
@@ -728,25 +728,25 @@ class o_oo_math_controller_BaseFormulaController(bpy.types.NodeCustomGroup):
         sub_col=sub_row.column(align=True)
         if self.node_tree:
             sub_row.label(text=f"Linked: {self.node_tree.name}", icon='LINKED')
-            op=sub_row.operator("o_oo_math_controller.expand_formula_group", text="", icon='NODETREE')
+            op=sub_row.operator("o_oo.expand_formula_group", text="", icon='NODETREE')
         else:
             print("lost node_tree")#deb
-#==========================update_in_FromulaController:入力検査->rebuild_internal呼び出し=======#
-#==========================update_in_FromulaController: input validation -> call rebuild_internal=======#
-    def update_in_FromulaController(self,forms):
+#==========================update_in_MathController:入力検査->rebuild_internal呼び出し=======#
+#==========================update_in_MathController: input validation -> call rebuild_internal=======#
+    def update_in_MathController(self,forms):
         self.forms=forms
         self.formula=forms.expression
         self.formula_id=forms.name
         self.formula_num=int(self.formula_id[1:])-1
         self.last_formula=forms.last_formula
-        #print("update_in_FromulaController_start")
+        #print("update_in_MathController_start")
         try:
 
             if self.last_formula == self.formula:
-                print("update_in_FromulaController_end[1]")
+                print("update_in_MathController_end[1]")
                 return
             if self.get("_rebuilding", False):
-                print("update_in_FromulaController_end[2]")
+                print("update_in_MathController_end[2]")
                 return
             if not self.node_tree:
                 print("Error: Node tree is missing.")
@@ -762,7 +762,7 @@ class o_oo_math_controller_BaseFormulaController(bpy.types.NodeCustomGroup):
                 self._rebuilding = False               
         except Exception as e:
             self.forms["error_msg"]="unklnown error"
-            print("Error in update_in_FromulaController:")
+            print("Error in update_in_MathController:")
             traceback.print_exc()
 
 #========================================rebuild_internal:数式ノード生成======#
@@ -792,29 +792,29 @@ class o_oo_math_controller_BaseFormulaController(bpy.types.NodeCustomGroup):
         # Create builder and execute in batch
         #builderで許可するノードタイプに限って分析する
         # Analyze only node types allowed by the builder
-        builder = o_oo_math_controller_NodeBuilder(self, tree)
+        builder = o_oo_NodeBuilder(self, tree)
         builder.run(node_ast, all_vars)
 
     def free(self):
         if self.node_tree and self.node_tree.users <= 2:#!
             bpy.data.node_groups.remove(self.node_tree)
             
-class o_oo_math_controller_SHADER_NodeFormulaController(bpy.types.ShaderNodeCustomGroup, o_oo_math_controller_BaseFormulaController):
-    bl_idname = "o_oo_math_controller.ShaderNodeFormulaController"
+class o_oo_SHADER_NodeMathController(bpy.types.ShaderNodeCustomGroup, o_oo_BaseMathController):
+    bl_idname = "o_oo.ShaderNodeMathController"
     bl_tree_type = 'ShaderNodeTree'
     group_type='ShaderNodeGroup'
     def init(self,context):
         super().init(context)
 
-class o_oo_math_controller_COMP_NodeFormulaController(bpy.types.CompositorNodeCustomGroup, o_oo_math_controller_BaseFormulaController):
-    bl_idname = "o_oo_math_controller.CompositorNodeFormulaController"
+class o_oo_COMP_NodeMathController(bpy.types.CompositorNodeCustomGroup, o_oo_BaseMathController):
+    bl_idname = "o_oo.CompositorNodeMathController"
     bl_tree_type = 'CompositorNodeTree'
     group_type='CompositorNodeGroup'
     def init(self,context):
         super().init(context)
 
-class o_oo_math_controller_GEO_NodeFormulaController(bpy.types.GeometryNodeCustomGroup, o_oo_math_controller_BaseFormulaController):
-    bl_idname = "o_oo_math_controller.GeometryNodeFormulaController"
+class o_oo_GEO_NodeMathController(bpy.types.GeometryNodeCustomGroup, o_oo_BaseMathController):
+    bl_idname = "o_oo.GeometryNodeMathController"
     bl_tree_type = 'GeometryNodeTree'
     group_type='GeometryNodeGroup'
     def init(self,context):
@@ -823,45 +823,45 @@ class o_oo_math_controller_GEO_NodeFormulaController(bpy.types.GeometryNodeCusto
 # --- 登録用の関数群 ---
 # --- Registration functions ---
 classes = (
-    o_oo_math_controller_FormulaItem,
-    o_oo_math_controller_NODE_OT_FormulaAdd,
-    o_oo_math_controller_NODE_OT_FormulaRemoveStrict,
-    o_oo_math_controller_NODE_OT_FormulaEditor,
-    o_oo_math_controller_NODE_OT_ExpandFormulaGroup,
-    o_oo_math_controller_BaseFormulaController,
-    o_oo_math_controller_SHADER_NodeFormulaController,
-    o_oo_math_controller_GEO_NodeFormulaController,
-    o_oo_math_controller_COMP_NodeFormulaController,
+    o_oo_FormulaItem,
+    o_oo_NODE_OT_FormulaAdd,
+    o_oo_NODE_OT_FormulaRemoveStrict,
+    o_oo_NODE_OT_FormulaEditor,
+    o_oo_NODE_OT_ExpandFormulaGroup,
+    o_oo_BaseMathController,
+    o_oo_SHADER_NodeMathController,
+    o_oo_GEO_NodeMathController,
+    o_oo_COMP_NodeMathController,
 )
 
 
-def o_oo_math_controller_menu_func_geo(self, context):
-    op = self.layout.operator("node.add_node", text="Formula Controller")
-    op.type = "o_oo_math_controller.GeometryNodeFormulaController"
+def o_oo_menu_func_geo(self, context):
+    op = self.layout.operator("node.add_node", text="Math Controller")
+    op.type = "o_oo.GeometryNodeMathController"
 
-def o_oo_math_controller_menu_func_shader(self, context):
-    op = self.layout.operator("node.add_node", text="Formula Controller")
-    op.type = "ShaderNodeFormulaController_510"
+def o_oo_menu_func_shader(self, context):
+    op = self.layout.operator("node.add_node", text="Math Controller")
+    op.type = "o_oo.ShaderNodeMathController"
 
-def menu_func_comp_510(self, context):
-    op = self.layout.operator("node.add_node", text="Formula Controller")
-    op.type = "CompositorNodeFormulaController_510"
+def o_oo_menu_func_comp(self, context):
+    op = self.layout.operator("node.add_node", text="Math Controller")
+    op.type = "o_oo.CompositorNodeMathController"
     
 def register():
     for i in classes:
         bpy.utils.register_class(i)
-    bpy.types.NODE_MT_category_GEO_UTILITIES.append(menu_func_geo_510)
-    bpy.types.NODE_MT_category_shader_utilities.append(menu_func_shader_510)
-    bpy.types.NODE_MT_category_compositor_utilities.append(menu_func_comp_510)
+    bpy.types.NODE_MT_category_GEO_UTILITIES.append(o_oo_menu_func_geo)
+    bpy.types.NODE_MT_category_shader_utilities.append(o_oo_menu_func_shader)
+    bpy.types.NODE_MT_category_compositor_utilities.append(o_oo_menu_func_comp)
 
 
 
 def unregister():
     # メニューから削除（登録時と同じ関数を指定する）
     # Remove from menu (specify the same function as used during registration)
-    bpy.types.NODE_MT_category_GEO_UTILITIES.remove(menu_func_geo_510)
-    bpy.types.NODE_MT_category_shader_utilities.remove(menu_func_shader_510)
-    bpy.types.NODE_MT_category_compositor_utilities.remove(menu_func_comp_510)
+    bpy.types.NODE_MT_category_GEO_UTILITIES.remove(o_oo_menu_func_geo)
+    bpy.types.NODE_MT_category_shader_utilities.remove(o_oo_menu_func_shader)
+    bpy.types.NODE_MT_category_compositor_utilities.remove(o_oo_menu_func_comp)
     
     # クラスを「逆順」で削除
     # Unregister classes in reverse order
