@@ -824,9 +824,9 @@ def menu_func_comp_510(self, context):
 def register():
     for i in classes:
         bpy.utils.register_class(i)
-    # bpy.types.NODE_MT_category_GEO_UTILITIES.append(menu_func_geo_510)
-    # bpy.types.NODE_MT_category_shader_utilities.append(menu_func_shader_510)
-    # bpy.types.NODE_MT_category_compositor_utilities.append(menu_func_comp_510)
+    bpy.types.NODE_MT_category_GEO_UTILITIES.append(menu_func_geo_510)
+    bpy.types.NODE_MT_category_shader_utilities.append(menu_func_shader_510)
+    bpy.types.NODE_MT_category_compositor_utilities.append(menu_func_comp_510)
 
 
 
