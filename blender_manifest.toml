@@ -6,7 +6,8 @@ version = "0.4.5"
 
 name = "Math Controller"
 
-tagline = "Generate complex node networks automatically from text-based math formulas."
+tagline = "Add math group node that acts according to written formulas"
+
 maintainer = "o_oo_Gote510"
 
 type = "add-on"
