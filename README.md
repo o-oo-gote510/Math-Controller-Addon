@@ -63,5 +63,6 @@ Now, We can use all formulas in common math node.
 version：blender 5.0.1 or later  
 Please downroad this addon from release page, and drag and drop it in your blender, also you can install from local dict.
 ## ライセンス / License
-このアドオンは[GNU General Public License v3.0](https://www.gnu.org/licenses/gpl-3.0.html)に基づいています。  
-This addon is licensed under the [GNU General Public License v3.0](https://www.gnu.org/licenses/gpl-3.0.html).
+このアドオンは[GNU General Public License v3.0 or later]に基づいています。  
+This addon is licensed under the [GNU General Public License v3.0 or later].  
+https://spdx.org/licenses/GPL-3.0-or-later.html
