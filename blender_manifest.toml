@@ -1,36 +1,38 @@
 schema_version = "1.0.0"
 
-# IDは世界で一意である必要があります
-id = "formula_controller_510"
+id = "o_oo_math_controller"
 
-version = "0.4.4"
-name = "!test Math Node Generator2"
-tagline = "AST解析を用いて入力した数式から動的にノードツリーを構築するコントローラー"
-maintainer = "Gote"
+version = "0.4.5"
+
+name = "Math Controller"
+
+tagline = "Generate complex node networks automatically from text-based math formulas."
+maintainer = "o_oo_Gote510"
+
 type = "add-on"
 
-# 対応プラットフォーム（linux-x64 に修正）
 platforms = ["windows-x64", "macos-arm64", "macos-x64", "linux-x64"]
 
-# 対応するBlenderの最小バージョン
 blender_version_min = "5.0.1"
 
-# ライセンス指定
 license = ["SPDX:GPL-3.0-or-later"]
 
-# 検索用タグ
-tags = ["Node", "Geometry Nodes"]
+tags = ["Geometry Nodes", "Node", "User Interface", "Compositing", "Material"]
 
 [description]
 base = """
-テキスト入力欄に記述した算術式（例: 'sin(a) * b + 10'）を解析し、
-内部に自動的に数式ノードのネットワークを構築するカスタムグループノードを提供します。
+Provides custom group nodes that analyze arithmetic expressions (e.g., 'sin(a) * b + 10') 
+entered in a text field and automatically build an internal network of Math nodes.
 
-主な特徴:
-- PythonのAST（抽象構文木）を利用した安全で高速な数式解析
-- 複数の出力（f1, f2...）を管理可能なマルチフォーミュラ対応
-- Shader / Geometry / Compositor の各エディターに対応
-- ノードレイアウトの自動整列機能
+Key Features:
+- Full support for all Blender Math node functions.
+- Secure and fast formula parsing using Python's AST (Abstract Syntax Tree).
+- Multi-output management (f1, f2...) allowing values to be passed between formulas.
+- Advanced formula editor with function guides and parenthesis level visualization.
+- Supports conversion to standard Group Nodes for easy sharing.
+- Compatible with Shader, Geometry, and Compositor node editors.
+- Automatic node layout and alignment for clean internal structures.
 """
 
-# [urls] セクションは、実際のURL（GitHub等）を記載する時まで削除しておきます
+# [urls]
+# repository = "https://github.com/o_oo_Gote510/o_oo_math_controller"
