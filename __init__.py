@@ -83,7 +83,7 @@ HELP_LAYOUT_DATA = {
     "Functions": [
         ('+    add(  ,  )', 'Add'), 
         ('-    sub(  ,  )', 'Subtract'), 
-        ('*    mul(  ,  )','Multipy'),
+        ('*    mul(  ,  )','Multiply'),
         ('/    div(  ,  )', 'Divide'), 
         ('madd(  ,  ,  )', 'Multiply Add'), 
         ('', ''),
