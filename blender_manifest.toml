@@ -22,7 +22,7 @@ license = ["SPDX:GPL-3.0-or-later"]
 
 copyright = ["2026 o_oo_gote510"]
 
-tags = ["Geometry Nodes", "Node", "User Interface", "Compositing", "Material"]
+tags = ["Node", "User Interface"]
 
 [description]
 base = """
