@@ -1,5 +1,6 @@
 
 # Math Controller Addon  
+![thumbnail](<images/thumbnail_01_1_1.png>)
 ## (Japanese & English)
 ![img3](<images/img3.png>)
 ## 説明 / Overview
