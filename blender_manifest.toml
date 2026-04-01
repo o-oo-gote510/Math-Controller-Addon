@@ -14,7 +14,6 @@ type = "add-on"
 
 website = "https://github.com/o-oo-gote510/Math-Controller-Addon.git"
 
-platforms = ["windows-x64", "macos-arm64", "macos-x64", "linux-x64"]
 
 blender_version_min = "5.0.1"
 
@@ -22,26 +21,7 @@ license = ["SPDX:GPL-3.0-or-later"]
 
 copyright = ["2026 o_oo_gote510"]
 
-tags = ["Node", "User Interface"]
-
-[description]
-base = """
-Provides custom group nodes that analyze arithmetic expressions (e.g., 'sin(a) * b + 10') 
-entered in a text field and automatically build an internal network of Math nodes.
-
-Key Features:
-- Full support for all Blender Math node functions.
-- Secure and fast formula parsing using Python's AST (Abstract Syntax Tree).
-- Multi-output management (f1, f2...) allowing values to be passed between formulas.
-- Advanced formula editor with function guides and parenthesis level visualization.
-- Supports conversion to standard Group Nodes for easy sharing.
-- Compatible with Shader, Geometry, and Compositor node editors.
-- Automatic node layout and alignment for clean internal structures.
-"""
-
- [urls]
- repository = "https://github.com/o-oo-gote510/Math-Controller-Addon.git"
- issues = "https://github.com/o-oo-gote510/Math-Controller-Addon/issues"
+tags = ["Node"]
 
  [build]
 paths_exclude_pattern = [
