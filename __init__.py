@@ -15,7 +15,7 @@
 ###
 
 #======Math Controller addon======#
-#===========MC_0.4.6=================#
+#===========MC_0.4.7=================#
 import bpy
 from bpy.app.translations import pgettext_iface
 import traceback
@@ -453,7 +453,7 @@ class o_oo_NodeBuilder:
         #!Warning: Performing retrieval and deletion of INPUT and OUTPUT sockets in the same for loop caused Blender to crash.
         for item in list(self.tree.interface.items_tree):
             if (item.item_type == 'SOCKET' and item.in_out == 'OUTPUT' and item.name not in output_rema):
-                if not getattr(self.c.inputs.get(item.name,"no"),"is_linked",""):
+                if not getattr(self.c.outputs.get(item.name,"no"),"is_linked",""):
                     self.tree.interface.remove(item)
 
     def dig_unary(self,ast_node,i):
@@ -498,7 +498,7 @@ class o_oo_NodeBuilder:
                 self.node_dimension.append(-1)
             self.node_dimension[depth]+=1
             
-            math_node = self.tree.nodes.new("ShaderNodeMath")
+            math_node = self.tree.nodes.new(self.c.math_type)
             math_node.location = (-200*depth, -180*self.node_dimension[depth])
 
 
@@ -661,6 +661,7 @@ class o_oo_BaseMathController(bpy.types.NodeCustomGroup):
     def init(self, context):
         new_tree = bpy.data.node_groups.new(".internal", self.bl_tree_type)
         self.node_tree = new_tree
+        self.node_tree.color_tag ='CONVERTER'
         self.width = 240
         # 初期状態で f1 を作成
         # Create f1 in the initial state
@@ -806,6 +807,7 @@ class o_oo_SHADER_NodeMathController(bpy.types.ShaderNodeCustomGroup, o_oo_BaseM
     bl_idname = "o_oo.ShaderNodeMathController"
     bl_tree_type = 'ShaderNodeTree'
     group_type='ShaderNodeGroup'
+    math_type ='ShaderNodeMath'
     def init(self,context):
         super().init(context)
 
@@ -813,6 +815,7 @@ class o_oo_COMP_NodeMathController(bpy.types.CompositorNodeCustomGroup, o_oo_Bas
     bl_idname = "o_oo.CompositorNodeMathController"
     bl_tree_type = 'CompositorNodeTree'
     group_type='CompositorNodeGroup'
+    math_type ='ShaderNodeMath'
     def init(self,context):
         super().init(context)
 
@@ -820,7 +823,16 @@ class o_oo_GEO_NodeMathController(bpy.types.GeometryNodeCustomGroup, o_oo_BaseMa
     bl_idname = "o_oo.GeometryNodeMathController"
     bl_tree_type = 'GeometryNodeTree'
     group_type='GeometryNodeGroup'
+    math_type ='ShaderNodeMath'
     def init(self,context):
+        super().init(context)
+        
+class o_oo_TEX_NodeMathController(o_oo_BaseMathController, bpy.types.TextureNodeGroup):
+    bl_idname = "o_oo.TextureNodeMathController"
+    bl_tree_type = 'TextureNodeTree'
+    group_type = 'TextureNodeGroup'
+    math_type ='TextureNodeMath'
+    def init(self, context):
         super().init(context)
 
 # --- 登録用の関数群 ---
@@ -835,6 +847,7 @@ classes = (
     o_oo_SHADER_NodeMathController,
     o_oo_GEO_NodeMathController,
     o_oo_COMP_NodeMathController,
+    o_oo_TEX_NodeMathController,
 )
 
 
@@ -850,12 +863,17 @@ def o_oo_menu_func_comp(self, context):
     op = self.layout.operator("node.add_node", text="Math Controller")
     op.type = "o_oo.CompositorNodeMathController"
     
+def o_oo_menu_func_tex(self, context):
+    op = self.layout.operator("node.add_node", text="Math Controller")
+    op.type = "o_oo.TextureNodeMathController"
+    
 def register():
     for i in classes:
         bpy.utils.register_class(i)
     bpy.types.NODE_MT_category_GEO_UTILITIES.append(o_oo_menu_func_geo)
     bpy.types.NODE_MT_category_shader_utilities.append(o_oo_menu_func_shader)
     bpy.types.NODE_MT_category_compositor_utilities.append(o_oo_menu_func_comp)
+    bpy.types.NODE_MT_category_texture_converter.append(o_oo_menu_func_tex)
 
 
 
