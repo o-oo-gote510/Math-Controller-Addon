@@ -21,7 +21,7 @@ from bpy.app.translations import pgettext_iface
 import traceback
 import ast
 
-
+version = bpy.app.version
 #astパーサー用
 # For AST parser
 MATH_OPS = {ast.Add: 'ADD', ast.Sub: 'SUBTRACT', ast.Mult: 'MULTIPLY', ast.Div: 'DIVIDE', ast.Pow: "POWER"}
@@ -661,7 +661,8 @@ class o_oo_BaseMathController(bpy.types.NodeCustomGroup):
     def init(self, context):
         new_tree = bpy.data.node_groups.new(".internal", self.bl_tree_type)
         self.node_tree = new_tree
-        self.node_tree.color_tag ='CONVERTER'
+        if version[0]+version[1]/10 >=4.4:
+            self.node_tree.color_tag ='CONVERTER'
         self.width = 240
         # 初期状態で f1 を作成
         # Create f1 in the initial state
@@ -815,7 +816,7 @@ class o_oo_COMP_NodeMathController(bpy.types.CompositorNodeCustomGroup, o_oo_Bas
     bl_idname = "o_oo.CompositorNodeMathController"
     bl_tree_type = 'CompositorNodeTree'
     group_type='CompositorNodeGroup'
-    math_type ='ShaderNodeMath'
+    math_type ='ShaderNodeMath' if version[0] >= 5 else 'CompositorNodeMath'
     def init(self,context):
         super().init(context)
 
@@ -827,7 +828,7 @@ class o_oo_GEO_NodeMathController(bpy.types.GeometryNodeCustomGroup, o_oo_BaseMa
     def init(self,context):
         super().init(context)
         
-class o_oo_TEX_NodeMathController(o_oo_BaseMathController, bpy.types.TextureNodeGroup):
+class o_oo_TEX_NodeMathController(o_oo_BaseMathController):
     bl_idname = "o_oo.TextureNodeMathController"
     bl_tree_type = 'TextureNodeTree'
     group_type = 'TextureNodeGroup'
@@ -871,7 +872,10 @@ def register():
     for i in classes:
         bpy.utils.register_class(i)
     bpy.types.NODE_MT_category_GEO_UTILITIES.append(o_oo_menu_func_geo)
-    bpy.types.NODE_MT_category_shader_utilities.append(o_oo_menu_func_shader)
+    if version[0] >= 5:
+        bpy.types.NODE_MT_category_shader_utilities.append(o_oo_menu_func_shader)
+    else:
+        bpy.types.NODE_MT_category_shader_converter.append(o_oo_menu_func_shader)
     bpy.types.NODE_MT_category_compositor_utilities.append(o_oo_menu_func_comp)
     bpy.types.NODE_MT_category_texture_converter.append(o_oo_menu_func_tex)
 
@@ -881,9 +885,12 @@ def unregister():
     # メニューから削除（登録時と同じ関数を指定する）
     # Remove from menu (specify the same function as used during registration)
     bpy.types.NODE_MT_category_GEO_UTILITIES.remove(o_oo_menu_func_geo)
-    bpy.types.NODE_MT_category_shader_utilities.remove(o_oo_menu_func_shader)
+    if version[0] >= 5:
+        bpy.types.NODE_MT_category_shader_utilities.remove(o_oo_menu_func_shader)
+    else:
+        bpy.types.NODE_MT_category_shader_converter.remove(o_oo_menu_func_shader)
     bpy.types.NODE_MT_category_compositor_utilities.remove(o_oo_menu_func_comp)
-    
+    bpy.types.NODE_MT_category_texture_converter.remove(o_oo_menu_func_tex)
     # クラスを「逆順」で削除
     # Unregister classes in reverse order
     for i,cls in enumerate(reversed(classes)):
