@@ -1,19 +1,29 @@
 
 # Math Controller Addon  
-![thumbnail](<images/thumbnail_01_1_1.png>)
+![thumbnail](<https://github.com/o-oo-gote510/Math-Controller-Addon/blob/main/images/thumbnail_01_1_1.png?raw=true>)
 ## (Japanese & English)
-![img3](<images/img3.png>)
+![img3](<https://github.com/o-oo-gote510/Math-Controller-Addon/blob/main/images/img3.png?raw=true>)
 ## 説明 / Overview
 　このアドオンは、記入した数式の通りに数値計算をする拡張mathノード「**Math Controller**」を追加します。  
 Math Controllerは内部に数式ノード群を生成するカスタムグループノードです。  
-ノードはシェーダー・ジオメトリー・コンポジターで使えます。  
+ノードはシェーダー・ジオメトリー・コンポジター・テクスチャノードエディターで使えます。(※テクスチャノードはサブグループノードにしかソケットが入りません。)  
   This addon add **Math Controller**. This is Advanced math node that acts acoording to fromulas your Written.
 Math Controller is CustomGroupNode that generates math nodes inside.
-You can use thsi node in Shader Editer, Geometry Node Editor and Compositor.
-![img2](<images/img2.jpg>)
+You can use thsi node in Shader Editer, Geometry Node Editor, Compositor and Texture node editor.
+(※In Texture node editor,only Sub Groups of Math cntrollers have sokets links. )
+![img2](<https://github.com/o-oo-gote510/Math-Controller-Addon/blob/main/images/img2.jpg?raw=true>)
 ## 使い方 / Usage
 ### 場所 / location
-![img1](<images/img1.jpg>)
+#### blender > 5.0
+- shader & geometry & compositor  
+![img1](<https://github.com/o-oo-gote510/Math-Controller-Addon/blob/main/images/img1.jpg?raw=true>)  
+- texture node editor
+Node editor > Add > Converter > "Math Controller"
+#### 4.0 <= blender < 5.0
+- shader & geometry  
+Node editor > Add > Utilities > "Math Controller"
+- texture & compositor  
+Node editor > Add > Converter > "Math Controller"
 ### `+`/`-` ボタン
 入力フォームを増減。
 ### 関数入力フォームについて
@@ -57,7 +67,7 @@ Like standard Blender nodes, the Math Controller can be duplicated as a separate
 ## 演算子・関数 一覧 / Formula list
 現バージョンでは、通常のmathノードの関数に対応しています。  
 Now, We can use all formulas in common math node.
-![img4](<images/img4.png>)
+![img4](<https://github.com/o-oo-gote510/Math-Controller-Addon/blob/main/images/img4.png?raw=true>)
 
 # インストール / Installation
 現在：blender 5.0.1以上で動作可能です。  
