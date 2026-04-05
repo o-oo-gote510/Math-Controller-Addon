@@ -70,10 +70,10 @@ Now, We can use all formulas in common math node.
 ![img4](<https://github.com/o-oo-gote510/Math-Controller-Addon/blob/main/images/img4.png?raw=true>)
 
 # インストール / Installation
-現在：blender 5.0.1以上で動作可能です。  
+現在：blender 4.0以上で動作可能です。  
 [blender extentionsの当該ページ](https://extensions.blender.org/add-ons/o-oo-math-controller/)、またはgithubのリリースからダウンロードできます。  
 blender画面にドラッグアンドドロップして下さい。もしくはローカルファイルから読み込んでください。  
-version：blender 5.0.1 or later  
+version：blender 4.0 or later  
 You can dawnroad this addon from [homepage in blender extentions](https://extensions.blender.org/add-ons/o-oo-math-controller/) or github release.  
 Please drag and drop it in your blender, also you can install from local dict.
 ## ライセンス / License
