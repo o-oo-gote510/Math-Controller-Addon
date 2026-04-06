@@ -15,7 +15,7 @@
 ###
 
 #======Math Controller addon======#
-#===========MC_0.4.7=================#
+#===========MC_0.4.8=================#
 import bpy
 from bpy.app.translations import pgettext_iface
 import traceback
