@@ -20,9 +20,9 @@ You can use thsi node in Shader Editer, Geometry Node Editor, Compositor and Tex
 - texture node editor
 Node editor > Add > Converter > "Math Controller"
 #### 4.2 <= blender < 5.0
-- shader & geometry  
+- compositor & geometry  
 Node editor > Add > Utilities > "Math Controller"
-- texture & compositor  
+- texture & shader
 Node editor > Add > Converter > "Math Controller"
 ### `+`/`-` ボタン
 入力フォームを増減。
