@@ -19,7 +19,7 @@ You can use thsi node in Shader Editer, Geometry Node Editor, Compositor and Tex
 ![img1](<https://github.com/o-oo-gote510/Math-Controller-Addon/blob/main/images/img1.jpg?raw=true>)  
 - texture node editor
 Node editor > Add > Converter > "Math Controller"
-#### 4.0 <= blender < 5.0
+#### 4.2 <= blender < 5.0
 - shader & geometry  
 Node editor > Add > Utilities > "Math Controller"
 - texture & compositor  
@@ -70,10 +70,10 @@ Now, We can use all formulas in common math node.
 ![img4](<https://github.com/o-oo-gote510/Math-Controller-Addon/blob/main/images/img4.png?raw=true>)
 
 # インストール / Installation
-現在：blender 4.0以上で動作可能です。  
+現在：blender 4.2以上で動作可能です。  
 [blender extentionsの当該ページ](https://extensions.blender.org/add-ons/o-oo-math-controller/)、またはgithubのリリースからダウンロードできます。  
 blender画面にドラッグアンドドロップして下さい。もしくはローカルファイルから読み込んでください。  
-version：blender 4.0 or later  
+version：blender 4.2 or later  
 You can dawnroad this addon from [homepage in blender extentions](https://extensions.blender.org/add-ons/o-oo-math-controller/) or github release.  
 Please drag and drop it in your blender, also you can install from local dict.
 ## ライセンス / License
